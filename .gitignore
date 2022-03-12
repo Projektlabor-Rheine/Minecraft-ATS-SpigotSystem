@@ -1,5 +1,17 @@
-bin/
-test/
-.classpath
-.project
+# Ignore Gradle project-specific cache directory
+.gradle/
+
+# Ignore Gradle build output directory
+build/
+
+# Debug code inside the project (Has token etc.)
+lib/src/main/java/gitignore/
+lib/.classpath
+lib/bin/
+
+# Generall redundant elements
 .settings/
+gradle/
+.project
+gradlew
+gradlew.bat

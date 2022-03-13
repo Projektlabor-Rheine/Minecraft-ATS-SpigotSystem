@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.utils.Compression;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -49,11 +50,14 @@ public class DiscordConnector {
 	 * 
 	 * @param status the new status
 	 * @param activity the new activity
-	 * @throws LoginException if the connection is required to be reopened and the login-token is invalid.
+	 * 
+	 * The exception include:
+	 * - LoginException
+	 * - ErrorResponseException 
 	 * 
 	 * @return class-instance for method-chaining
 	 */
-	public DiscordConnector setStatusAndActivity(OnlineStatus status,Activity activity) throws LoginException {
+	public DiscordConnector setStatusAndActivity(OnlineStatus status,Activity activity) throws Exception {
 		this.ensureConnection();
 		// Updates the status
 		this.connection.getPresence().setPresence(status, activity);
@@ -61,6 +65,29 @@ public class DiscordConnector {
 		return this;
 	}	
 	
+	/**
+	 * Gets all textchannels that the bot is part of and in all guilds and returns them as string with their ids that are required to uniquely identify them.
+	 * 
+	 * !Ensures connection automatically!
+	 * 
+	 * The exception include:
+	 * - LoginException
+	 * - ErrorResponseException 
+	 * 
+	 * @return class-instance for method-chaining
+	 */
+	public ChannelLink[] getTextChannelLinks() throws Exception{
+		this.ensureConnection();
+		
+		this.connection.awaitReady();
+		
+		// Iterates over all guild and all their text-channels and converts them to simple channel-link objects
+		return this.connection.getGuilds().stream().map(guild->{
+			return guild.getChannels().stream().filter(channel->channel instanceof TextChannel).map(channel->{
+				return new ChannelLink(guild.getName(), channel.getName(), guild.getIdLong(), channel.getIdLong());
+			});
+		}).flatMap(i->i).toArray(ChannelLink[]::new);
+	}
 	
 	
 	/**
@@ -71,13 +98,6 @@ public class DiscordConnector {
 	public DiscordConnector setStatusAndActivityAsync(OnlineStatus status,Activity activity) { return this.setStatusAndActivityAsync(status, activity, null); }
 	
 	// Async version
-	/**
-	 * Async version
-	 * 
-	 * The exception include:
-	 * - LoginException
-	 * - ErrorResponseException 
-	 */
 	public DiscordConnector setStatusAndActivityAsync(OnlineStatus status,Activity activity, Consumer<Exception> onFail) {
 		new FailableThread<Exception>(()->this.setStatusAndActivity(status,activity), onFail).start();
 		return this;
@@ -89,6 +109,14 @@ public class DiscordConnector {
 			this.ensureConnection();
 			if(onSuccess != null)
 				onSuccess.run();
+		}, onFail).start();
+		return this;
+	}
+	
+	// Async version
+	public DiscordConnector getTextChannelLinksAsync(Consumer<ChannelLink[]> onSuccess, Consumer<Exception> onFail) {
+		new FailableThread<Exception>(()->{
+			onSuccess.accept(this.getTextChannelLinks());
 		}, onFail).start();
 		return this;
 	}

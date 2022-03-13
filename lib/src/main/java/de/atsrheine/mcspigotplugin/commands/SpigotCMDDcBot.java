@@ -11,6 +11,7 @@ public class SpigotCMDDcBot implements CommandExecutor{
 	// Command instances
 	private CmdDebug cmdDebug = new CmdDebug();
 	private CmdTest cmdTest = new CmdTest();
+	private CmdViewChannels cmdViewChannels = new CmdViewChannels();
 	
 	@Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -26,6 +27,7 @@ public class SpigotCMDDcBot implements CommandExecutor{
 		switch(args[0].toLowerCase()) {
 			case "debug": return cmdDebug.onCommand(sender, args);
 			case "test": return cmdTest.onCommand(sender, args);
+			case "viewchannels": return cmdViewChannels.onCommand(sender, args);
 		}
 
 		// TODO: Implement help message

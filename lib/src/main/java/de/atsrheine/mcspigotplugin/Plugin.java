@@ -4,6 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import de.atsrheine.mcspigotplugin.commands.SpigotCMDDcBot;
 import de.atsrheine.mcspigotplugin.discord.DiscordConnector;
+import de.atsrheine.mcspigotplugin.events.Events;
 import gitignore.DEBUG_CONSTANTS;
 
 public class Plugin extends JavaPlugin{
@@ -19,6 +20,9 @@ public class Plugin extends JavaPlugin{
 	public void onEnable() {
 		// Registers the dcbot command
 		this.getCommand("dcbot").setExecutor(new SpigotCMDDcBot());
+		
+		// Registers the events
+		this.getServer().getPluginManager().registerEvents(new Events(), this);
 	}
 	
 	@Override

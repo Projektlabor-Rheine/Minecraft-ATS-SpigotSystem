@@ -4,13 +4,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import javax.security.auth.login.LoginException;
 
+import de.atsrheine.mcspigotplugin.util.FailableThread;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.utils.Compression;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -34,6 +37,69 @@ public class DiscordConnector {
 		this.token = token;
 	}
 	
+
+	/**
+	 * Sync-methods
+	 */
+	
+	/**
+	 * Updates the status and the activity of the bot.
+	 * 
+	 * !Ensures connection automatically!
+	 * 
+	 * @param status the new status
+	 * @param activity the new activity
+	 * @throws LoginException if the connection is required to be reopened and the login-token is invalid.
+	 * 
+	 * @return class-instance for method-chaining
+	 */
+	public DiscordConnector setStatusAndActivity(OnlineStatus status,Activity activity) throws LoginException {
+		this.ensureConnection();
+		// Updates the status
+		this.connection.getPresence().setPresence(status, activity);
+		
+		return this;
+	}	
+	
+	
+	
+	/**
+	 * Async-methods
+	 */
+	
+	// Async version
+	public DiscordConnector setStatusAndActivityAsync(OnlineStatus status,Activity activity) { return this.setStatusAndActivityAsync(status, activity, null); }
+	
+	// Async version
+	/**
+	 * Async version
+	 * 
+	 * The exception include:
+	 * - LoginException
+	 * - ErrorResponseException 
+	 */
+	public DiscordConnector setStatusAndActivityAsync(OnlineStatus status,Activity activity, Consumer<Exception> onFail) {
+		new FailableThread<Exception>(()->this.setStatusAndActivity(status,activity), onFail).start();
+		return this;
+	}
+	
+	// Async version
+	public DiscordConnector ensureConnectionAsync(Runnable onSuccess,Consumer<Exception> onFail) {
+		new FailableThread<Exception>(()->{
+			this.ensureConnection();
+			if(onSuccess != null)
+				onSuccess.run();
+		}, onFail).start();
+		return this;
+	}
+	
+	
+	
+	
+	/**
+	 * Connection maintain methods
+	 */
+	
 	/**
 	 * @return if there is currently an open connection to the discord servers
 	 */
@@ -42,14 +108,14 @@ public class DiscordConnector {
 	}
 
 	/**
-	 * Just ensures that the bot is connected to discord before doing anything
+	 * Sync method to ensure that the bot is connected to discord before doing anything
 	 * 
 	 * At most user methods of this class this method is automatically called so check there first.
 	 * 
 	 * @throws LoginException if the token is invalid
 	 * @return the class instance to open the possibility to chain this method with the constructor.
 	 */
-	public DiscordConnector ensureConnection() throws LoginException {
+	public DiscordConnector ensureConnection() throws LoginException,ErrorResponseException {
 		// Checks if the user is connected
 		if(this.isConnected()) {
 			// Restarts the connection killer thread
@@ -69,36 +135,20 @@ public class DiscordConnector {
 	    // Enables compression
 	    builder.setCompression(Compression.ZLIB);
 	    
-	    // Sets the current activity
-	    builder.setActivity(Activity.watching("<your text here>"));
-	    
 	    // Starts the connection
-	    this.connection = builder.build();
+	    var con = builder.build();
 	    
-	    // Starts the connection killer thread
+	    // Checks again if in the meantime a new connection had been made
+	    if(this.connection != null)
+	    	// Kills this connection again to instead use the other one
+	    	con.shutdownNow();
+	    else
+	    	this.connection = con;
+	    
+	    // (Re)Starts the connection killer thread
 	    this.startConnectionKiller();
 	    
 	    return this;
-	}
-	
-	/**
-	 * Updates the status and the activity of the bot.
-	 * 
-	 * !Ensures connection automatically!
-	 * 
-	 * @param status the new status
-	 * @param activity the new activity
-	 * @throws LoginException if the connection is required to be reopened and the login-token is invalid.
-	 * 
-	 * @return class-instance for method-chaining
-	 */
-	public DiscordConnector setStatusAndActivity(OnlineStatus status,Activity activity) throws LoginException {
-		this.ensureConnection();
-		
-		// Updates the status
-		this.connection.getPresence().setPresence(status, activity);
-		
-		return this;
 	}
 	
 	/**
@@ -115,6 +165,16 @@ public class DiscordConnector {
 		}catch(Exception e) {}
 		this.connection = null;
 	}
+	
+
+
+
+	
+	
+	
+	/**
+	 * Internal methods
+	 */
 	
 	/**
 	 * (Re)starts the connection killer which kills the discord connection after KILLER_FIRE_DELAY seconds.

@@ -8,7 +8,7 @@ import gitignore.DEBUG_CONSTANTS;
 public class Plugin extends JavaPlugin{
 	
 	// Prefix for the plugin
-	public static final String PREFIX = "§8[§cA§aT§bS§7-§7Bot§8]";
+	public static final String PREFIX = "§8[§cA§aT§bS§7-§6Bot§8]§7";
 	
 	// Global discord connection
 	// TODO: Load dc-token from file
@@ -16,6 +16,11 @@ public class Plugin extends JavaPlugin{
 	
 	@Override
 	public void onEnable() {
-		System.out.println("Yooooo läuft");
+	}
+	
+	@Override
+	public void onDisable() {
+		// Performs a shutdown for the bot if he is connected
+		DC_CON.disconnect();
 	}
 }

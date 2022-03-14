@@ -1,10 +1,13 @@
 package de.atsrheine.mcspigotplugin.commands;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.command.CommandSender;
 
 import de.atsrheine.mcspigotplugin.Plugin;
 import de.atsrheine.mcspigotplugin.dcnotifyer.DiscordNotifier;
 import de.atsrheine.mcspigotplugin.util.JavaUtil;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class CmdLink {
 
@@ -12,30 +15,20 @@ public class CmdLink {
 	 * Executes when the channel exist status get retrieved
 	 * @param sender the command executor
 	 */
-	public void onRetreival(CommandSender sender, int status, long guildId, long statusId) {
+	public void onRetreival(CommandSender sender, @Nullable TextChannel channel) {
 		
-		// Checks the status
-		switch(status) {
-		// Exists
-		case 0:			
-			// Updates the bind
-			DiscordNotifier.INSTANCE.bindToChannel(guildId, statusId);
-
+		// Checks if channel couldn't be found
+		if(channel == null) {
 			// Sends the info to the sender
-			sender.sendMessage(Plugin.PREFIX+" Erfolgreich an den neuen Kanal geknüpft.");
-			return;
-		// Guild doesn't exist
-		case -1:
-			// Sends the info to the sender
-			sender.sendMessage(Plugin.PREFIX+" §cEs existiert kein Discordserver mit dieser Id. Bitte vergewissere dich mithilfe von \"/dcbot viewchannels\".");
-			return;
-		// Channel doesn't exist
-		case -2:
-			// Sends the info to the sender
-			sender.sendMessage(Plugin.PREFIX+" §cEs existiert kein Kanal mit dieser Id mit dieser Id. Bitte vergewissere dich mithilfe von \"/dcbot viewchannels\".");
+			sender.sendMessage(Plugin.PREFIX+" §cEs existiert kein Discordserver oder kein Kanal mit dieser Id. Bitte vergewissere dich mithilfe von \"/dcbot viewchannels\".");
 			return;
 		}
-		
+			
+		// Updates the bind
+		DiscordNotifier.INSTANCE.bindToChannel(channel.getGuild().getIdLong(), channel.getIdLong());
+
+		// Sends the info to the sender
+		sender.sendMessage(Plugin.PREFIX+" §aErfolgreich §7an den neuen Kanal geknüpft.");
 	}
 	
 	/**
@@ -80,7 +73,7 @@ public class CmdLink {
     	Plugin.DC_CON.doesTextChannelExistAsync(
 			guildId,
 			channelId,
-			status->this.onRetreival(sender, status,guildId,channelId),
+			channel->this.onRetreival(sender, channel),
 			exc->this.onFailedConnection(sender, exc)
 		);
     	

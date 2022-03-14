@@ -2,8 +2,8 @@ package de.atsrheine.mcspigotplugin.dcnotifyer;
 
 public enum NotifyType {
 
-	YES("Ja"),
-	NO("Nein");
+	YES("Yes"),
+	NO("No");
 	
 	private String asString;
 	

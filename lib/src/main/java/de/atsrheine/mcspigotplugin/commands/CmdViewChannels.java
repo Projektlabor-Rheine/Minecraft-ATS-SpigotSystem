@@ -1,12 +1,16 @@
 package de.atsrheine.mcspigotplugin.commands;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 import org.bukkit.command.CommandSender;
 
 import de.atsrheine.mcspigotplugin.Plugin;
 import de.atsrheine.mcspigotplugin.discord.ChannelLink;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ClickEvent.Action;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class CmdViewChannels {
 
@@ -15,18 +19,8 @@ public class CmdViewChannels {
 	 * @param sender the command executor
 	 */
 	public void onRetreival(CommandSender sender, ChannelLink[] channels) {
-		// Creates the message with all channels.
-		var message = Arrays.stream(channels).map(channel->{
-			return Plugin.PREFIX+String.format(
-				" §a%s§8/§b%s§7 => §a%d§8/§b%d",
-				channel.getGuildName(),
-				channel.getChannelName(),
-				channel.getGuildId(),
-				channel.getChannelId());
-		}).collect(Collectors.joining("\n"));
-		
 		// Builds the message and sends it to the sender
-		sender.sendMessage(message+"\n"+Plugin.PREFIX+" Die obrigen Textkanäle befinden sich in folgendem Format: §a<Server>§8/§b<Kanal>§7 => §a<SID>§8/§b<KID>§7. Um den Bot auf einen bestimmten Kanal zu linken, nutze bitte: \"/dcbot link §a<SID>§8/§b<KID>\"§7.");
+		sender.spigot().sendMessage(this.buildMessage(channels));
 	}
 	
 	/**
@@ -48,6 +42,37 @@ public class CmdViewChannels {
 		);
     	
     	return true;
+    }
+    
+    /**
+     * Creates a chatmessage for the player from which he can choose which channel he wants to link the bot to.
+     * @param channels the channels that the bot can link to
+     * @return the message
+     */
+    @SuppressWarnings("deprecation")
+	private BaseComponent[] buildMessage(ChannelLink[] channels) {
+    	var base = new ComponentBuilder();
+    	
+    	// Iterates over all channels to append them to the message
+    	for(var channel : channels) {
+    		
+    		// Creates the events
+    		var hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§aKanal §b"+channel.getChannelName()+" §abenutze?"));
+    		var click = new ClickEvent(Action.RUN_COMMAND, "/dcbot link "+channel.getGuildId()+"/"+channel.getChannelId());
+    		
+    		// Creates and appends the message
+    		base
+    		.appendLegacy(Plugin.PREFIX+" ")
+    		.append(channel.getGuildName()).color(ChatColor.GREEN)
+    		.append(" => ").color(ChatColor.GRAY)
+    		.append(channel.getChannelName()).color(ChatColor.AQUA).event(hover).event(click)
+    		.append("\n");
+    	}
+    	
+    	// Appends the final text
+    	base.appendLegacy(Plugin.PREFIX+" Um den Bot zu einem der obrigen Textkanäle zu linken, klick einfach auf den, welchen du linken möchtest.");
+    	
+    	return base.create();
     }
 	
 }

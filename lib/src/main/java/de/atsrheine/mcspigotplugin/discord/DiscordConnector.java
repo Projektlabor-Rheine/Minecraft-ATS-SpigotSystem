@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
 
 import de.atsrheine.mcspigotplugin.util.FailableThread;
@@ -88,7 +89,7 @@ public class DiscordConnector {
 	}
 	
 	/**
-	 * Checks if the bod is on a guild which contains the given channel-id
+	 * Checks if the bot is on a guild which contains the given channel-id
 	 * 
 	 * !Ensures connection automatically!
 	 * 
@@ -96,20 +97,25 @@ public class DiscordConnector {
 	 * - LoginException
 	 * - ErrorResponseException 
 	 * 
-	 * @return -1 the given guild doesn't exist, -2 the given textchannel doesn't exist, 0 the guild and textchannel do exist.
+	 * @return the given textchannel if your, otherwise null
 	 */
-	public int doesTextChannelExist(long guildId, long channelId) throws Exception {
+	@Nullable
+	public TextChannel getTextChannel(long guildId, long channelId) throws Exception {
 		this.ensureConnection();
 		
 		// Tries to find the guild
 		var guild = this.connection.getGuildById(guildId);
 		
 		if(guild == null)
-			return -1;
+			return null;
 	
 		// Tries to find the text-channel
-		return guild.getTextChannelById(channelId) != null ? 0 : -2;
+		return guild.getTextChannelById(channelId);
 	}
+	
+	
+	
+	
 	
 	
 	
@@ -145,9 +151,9 @@ public class DiscordConnector {
 	}
 	
 	// Async version
-	public DiscordConnector doesTextChannelExistAsync(long guildId, long channelId,Consumer<Integer> onSuccess, Consumer<Exception> onFail) {
+	public DiscordConnector doesTextChannelExistAsync(long guildId, long channelId,Consumer<TextChannel> onSuccess, Consumer<Exception> onFail) {
 		new FailableThread<Exception>(()->{
-			onSuccess.accept(this.doesTextChannelExist(guildId, channelId));
+			onSuccess.accept(this.getTextChannel(guildId, channelId));
 		}, onFail).start();
 		return this;
 	}

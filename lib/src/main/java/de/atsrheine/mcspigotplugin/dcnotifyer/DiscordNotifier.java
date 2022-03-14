@@ -20,6 +20,8 @@ public class DiscordNotifier{
 	public static final DiscordNotifier INSTANCE = new DiscordNotifier();
 	private DiscordNotifier() {}
 	
+	// Bound channel and guild
+	private long boundGuild,boundChannel;
 	
 	// Event: When a player joins
 	public void onPlayerJoin(Player p) {
@@ -36,6 +38,13 @@ public class DiscordNotifier{
 	public void onPlayerAccept(Player p,NotifyType type) {
 		
 	}
+	
+	// Binds the notifier to the given text channel. This trusted that the channel and guild exist and already got verified.
+	public void bindToChannel(long guildId, long channelId) {
+		this.boundGuild = guildId;
+		this.boundChannel = channelId;
+	}
+	
 
 	/**
 	 * Creates the message that is send to all players when joining to ask them if they want to notify the discord-server of their join.

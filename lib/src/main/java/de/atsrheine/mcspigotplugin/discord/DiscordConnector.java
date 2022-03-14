@@ -79,8 +79,6 @@ public class DiscordConnector {
 	public ChannelLink[] getTextChannelLinks() throws Exception{
 		this.ensureConnection();
 		
-		this.connection.awaitReady();
-		
 		// Iterates over all guild and all their text-channels and converts them to simple channel-link objects
 		return this.connection.getGuilds().stream().map(guild->{
 			return guild.getChannels().stream().filter(channel->channel instanceof TextChannel).map(channel->{
@@ -88,6 +86,31 @@ public class DiscordConnector {
 			});
 		}).flatMap(i->i).toArray(ChannelLink[]::new);
 	}
+	
+	/**
+	 * Checks if the bod is on a guild which contains the given channel-id
+	 * 
+	 * !Ensures connection automatically!
+	 * 
+	 * The exception include:
+	 * - LoginException
+	 * - ErrorResponseException 
+	 * 
+	 * @return -1 the given guild doesn't exist, -2 the given textchannel doesn't exist, 0 the guild and textchannel do exist.
+	 */
+	public int doesTextChannelExist(long guildId, long channelId) throws Exception {
+		this.ensureConnection();
+		
+		// Tries to find the guild
+		var guild = this.connection.getGuildById(guildId);
+		
+		if(guild == null)
+			return -1;
+	
+		// Tries to find the text-channel
+		return guild.getTextChannelById(channelId) != null ? 0 : -2;
+	}
+	
 	
 	
 	/**
@@ -121,6 +144,14 @@ public class DiscordConnector {
 		return this;
 	}
 	
+	// Async version
+	public DiscordConnector doesTextChannelExistAsync(long guildId, long channelId,Consumer<Integer> onSuccess, Consumer<Exception> onFail) {
+		new FailableThread<Exception>(()->{
+			onSuccess.accept(this.doesTextChannelExist(guildId, channelId));
+		}, onFail).start();
+		return this;
+	}
+	
 	
 	
 	
@@ -141,6 +172,7 @@ public class DiscordConnector {
 	 * At most user methods of this class this method is automatically called so check there first.
 	 * 
 	 * @throws LoginException if the token is invalid
+	 * @throws ErrorResponseException if the login failed do to a network error
 	 * @return the class instance to open the possibility to chain this method with the constructor.
 	 */
 	public DiscordConnector ensureConnection() throws LoginException,ErrorResponseException {
@@ -170,8 +202,14 @@ public class DiscordConnector {
 	    if(this.connection != null)
 	    	// Kills this connection again to instead use the other one
 	    	con.shutdownNow();
-	    else
+	    else {
 	    	this.connection = con;
+	    	// Waits for the connection to be ready
+	    	try {
+	    		con.awaitReady();
+	    	} catch (InterruptedException e) {}
+	    }
+
 	    
 	    // (Re)Starts the connection killer thread
 	    this.startConnectionKiller();

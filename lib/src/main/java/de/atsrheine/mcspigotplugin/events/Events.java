@@ -5,7 +5,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import de.atsrheine.mcspigotplugin.dcnotifyer.DiscordNotifyer;
+import de.atsrheine.mcspigotplugin.dcnotifyer.DiscordNotifier;
 
 public class Events implements Listener {
 
@@ -15,7 +15,7 @@ public class Events implements Listener {
 		evt.setQuitMessage("§8[§c-§8] §6"+evt.getPlayer().getDisplayName());
 	
 		// Sends the event to the discord-notifyer
-		DiscordNotifyer.INSTANCE.onPlayerLeft(evt.getPlayer());
+		DiscordNotifier.INSTANCE.onPlayerLeft(evt.getPlayer());
 	}
 	
 	@EventHandler
@@ -24,7 +24,7 @@ public class Events implements Listener {
 		evt.setJoinMessage("§8[§a+§8] §6"+evt.getPlayer().getDisplayName());
 		
 		// Sends the event to the discord-notifyer
-		DiscordNotifyer.INSTANCE.onPlayerJoin(evt.getPlayer());
+		DiscordNotifier.INSTANCE.onPlayerJoin(evt.getPlayer());
 	}
 	
 }

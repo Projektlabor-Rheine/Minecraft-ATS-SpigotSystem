@@ -11,15 +11,14 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 
-public class DiscordNotifyer{
+public class DiscordNotifier{
 
 	// Join-ask-message
 	private final BaseComponent[] JOIN_MESSAGE = this.createJoinMessage();
-	
+		
 	// Singleton instance
-	public static final DiscordNotifyer INSTANCE = new DiscordNotifyer();
-	private DiscordNotifyer() {}
-	
+	public static final DiscordNotifier INSTANCE = new DiscordNotifier();
+	private DiscordNotifier() {}
 	
 	
 	// Event: When a player joins
@@ -37,10 +36,7 @@ public class DiscordNotifyer{
 	public void onPlayerAccept(Player p,NotifyType type) {
 		
 	}
-	
-	
-	
-	
+
 	/**
 	 * Creates the message that is send to all players when joining to ask them if they want to notify the discord-server of their join.
 	 */

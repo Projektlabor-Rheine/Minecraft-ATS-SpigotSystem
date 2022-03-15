@@ -3,6 +3,7 @@ package de.atsrheine.mcspigotplugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.atsrheine.mcspigotplugin.commands.SpigotCMDDcBot;
+import de.atsrheine.mcspigotplugin.dcnotifyer.DiscordNotifier;
 import de.atsrheine.mcspigotplugin.discord.DiscordConnector;
 import de.atsrheine.mcspigotplugin.events.Events;
 import gitignore.DEBUG_CONSTANTS;
@@ -23,6 +24,9 @@ public class Plugin extends JavaPlugin{
 		
 		// Registers the events
 		this.getServer().getPluginManager().registerEvents(new Events(), this);
+		
+		// Starts the discord-notifyer
+		DiscordNotifier.INSTANCE.runTaskTimer(this, 0, 20*5);
 	}
 	
 	@Override

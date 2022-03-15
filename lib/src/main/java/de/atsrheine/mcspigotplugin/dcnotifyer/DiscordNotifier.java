@@ -1,8 +1,12 @@
 package de.atsrheine.mcspigotplugin.dcnotifyer;
 
 import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import de.atsrheine.mcspigotplugin.Plugin;
 import de.atsrheine.mcspigotplugin.util.FailableThread;
@@ -11,12 +15,12 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.ClickEvent.Action;
 
-public class DiscordNotifier{
+public class DiscordNotifier extends BukkitRunnable{
 
 	// Join-ask-message
 	private final BaseComponent[] JOIN_MESSAGE = this.createJoinMessage();
@@ -28,6 +32,9 @@ public class DiscordNotifier{
 	// Bound channel and guild
 	private long boundGuild,boundChannel;
 	
+	// Map with all player that are able to send discord notifications
+	private Map<Player, Long> allowedPlayers = new HashMap<>();
+	
 	
 	
 	
@@ -35,21 +42,43 @@ public class DiscordNotifier{
 	 * Events
 	 */
 	
+	// Event: General update event that runs every couple of seconds to perform maintainance
+	@Override
+	public void run() {
+		// Filters the players that no longer are allowed to send the discord notification
+		this.allowedPlayers = this.allowedPlayers.entrySet().stream()
+		.filter(i->i.getValue() > System.currentTimeMillis())
+		.collect(Collectors.toMap(row->row.getKey(), row->row.getValue()));
+		
+	}
 	
 	
 	// Event: When a player joins
 	public void onPlayerJoin(Player p) {
+		// Appends to the allowed senders
+		this.allowedPlayers.put(p, System.currentTimeMillis()+1000*60*2);
+		
 		// Sends the join message
 		p.spigot().sendMessage(JOIN_MESSAGE);
 	}
 	
 	// Event: When a player quits
 	public void onPlayerLeft(Player p) {
-		// TODO: Use to remove player from the sender list
+		// Removes from the list of allowed players
+		this.allowedPlayers.remove(p);
 	}
 	
 	// Event: A player send wants to accept
 	public void onPlayerAccept(Player p,NotifyType type) {
+		// Checks if the player can send a message
+		if(!this.allowedPlayers.containsKey(p)) {
+			p.sendMessage(Plugin.PREFIX+" §cDu hast bereits eine Benachrichtigung gesendet oder zu lange gewartet.");
+			return;
+		}
+		
+		// Removes from the list of allowed players
+		this.allowedPlayers.remove(p);
+		
 		// Checks if the player doesn't want to notify all players
 		if(!type.equals(NotifyType.YES))
 			return;

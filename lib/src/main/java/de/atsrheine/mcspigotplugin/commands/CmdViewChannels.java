@@ -57,20 +57,25 @@ public class CmdViewChannels {
     	for(var channel : channels) {
     		
     		// Creates the events
-    		var hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§aKanal §b"+channel.getChannelName()+" §abenutze?"));
-    		var click = new ClickEvent(Action.RUN_COMMAND, "/dcbot link "+channel.getGuildId()+"/"+channel.getChannelId());
+    		var hoverChannel = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§aKanal-Id §b"+channel.getChannelName()+" §akopieren?"));
+    		var clickChannel = new ClickEvent(Action.COPY_TO_CLIPBOARD, channel.getChannelId()+"");
+    		var hoverGuild = new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("§aServer-Id §b"+channel.getGuildName()+" §akopieren?"));
+    		var clickGuild = new ClickEvent(Action.COPY_TO_CLIPBOARD, channel.getGuildId()+"");
     		
     		// Creates and appends the message
     		base
     		.appendLegacy(Plugin.PREFIX+" ")
-    		.append(channel.getGuildName()).color(ChatColor.GREEN)
-    		.append(" => ").color(ChatColor.GRAY)
-    		.append(channel.getChannelName()).color(ChatColor.AQUA).event(hover).event(click)
+    		.append(channel.getGuildName()).color(ChatColor.GREEN).event(hoverGuild).event(clickGuild)
+    		.append(" - ").reset().color(ChatColor.GRAY)
+    		.append(channel.getChannelName()).color(ChatColor.AQUA).event(hoverChannel).event(clickChannel)
     		.append("\n");
     	}
     	
     	// Appends the final text
-    	base.appendLegacy(Plugin.PREFIX+" Um den Bot zu einem der obrigen Textkanäle zu linken, klick einfach auf den, welchen du linken möchtest.");
+    	base.appendLegacy(
+    			Plugin.PREFIX+" Um den Bot zu einem der obrigen Textkanäle zu linken, füge einfach "
+    					+ "die Server-Id und die Kanal-Id in die 'config.yml' des Plugins ein. "
+    			+ "Diese Id's kannst du per Click auf die jeweiligen Elemente oberhalb kopieren");
     	
     	return base.create();
     }

@@ -1,0 +1,12 @@
+# Configurations for the discord-bot
+discord:
+  # Discord-bot token
+  token:
+# Configuration for the discord-notification manager
+dcnotifyer:
+  # Guild- and Channelid for the notification channel
+  guild-id:
+  channel-id:
+  # How long the user has time after joining to click the notify-button. If he waits longer he/she can no notify the discord.
+  # Time in ms (default is 2min = 120000ms)
+  notify-timer: 120000

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -21,7 +23,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class DiscordNotifier extends BukkitRunnable{
-
+	
 	// Join-ask-message
 	private final BaseComponent[] JOIN_MESSAGE = this.createJoinMessage();
 		
@@ -36,6 +38,9 @@ public class DiscordNotifier extends BukkitRunnable{
 	private Map<Player, Long> allowedPlayers = new HashMap<>();
 	
 	
+	// Settings
+	public long setDelayTime; // How long after the joining the user has time to click the notify-discord button.
+	
 	
 	
 	/**
@@ -47,7 +52,7 @@ public class DiscordNotifier extends BukkitRunnable{
 	public void run() {
 		// Filters the players that no longer are allowed to send the discord notification
 		this.allowedPlayers = this.allowedPlayers.entrySet().stream()
-		.filter(i->i.getValue() > System.currentTimeMillis())
+		.filter(i->(i.getValue()+this.setDelayTime) > System.currentTimeMillis())
 		.collect(Collectors.toMap(row->row.getKey(), row->row.getValue()));
 		
 	}
@@ -56,7 +61,7 @@ public class DiscordNotifier extends BukkitRunnable{
 	// Event: When a player joins
 	public void onPlayerJoin(Player p) {
 		// Appends to the allowed senders
-		this.allowedPlayers.put(p, System.currentTimeMillis()+1000*60*2);
+		this.allowedPlayers.put(p, System.currentTimeMillis());
 		
 		// Sends the join message
 		p.spigot().sendMessage(JOIN_MESSAGE);
@@ -134,7 +139,31 @@ public class DiscordNotifier extends BukkitRunnable{
 	}
 	
 
-	
+	// Load-config event, return if the loading was successful or failed
+	public boolean onLoadConfig(FileConfiguration cfg) {
+		
+		// Notifyer-section from the config
+		var sec = cfg.getConfigurationSection("dcnotifyer");
+		
+		// Tries to load the guild and channel token
+		long guildId = sec.getLong("guild-id", -1);
+		long channelId = sec.getLong("channel-id", -1);
+		
+		// Checks if both have been set
+		if(guildId <= 0 && channelId <= 0)
+			this.bindToChannel(guildId, channelId);
+		
+		// Loads the notify-time
+		this.setDelayTime = sec.getLong("notify-timeout");
+		
+		// Checks if the value is invalid
+		if(this.setDelayTime <= 0) {
+			Bukkit.getConsoleSender().sendMessage(Plugin.PREFIX+" §cDer Wert für 'dcnotifyer'.'notify-timeout' muss gesetzt und größer als 0 sein!");
+			return false;
+		}
+		
+		return true;
+	}
 	
 	
 	

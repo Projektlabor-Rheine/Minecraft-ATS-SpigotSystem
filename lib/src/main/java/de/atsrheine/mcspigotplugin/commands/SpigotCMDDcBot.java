@@ -12,7 +12,6 @@ public class SpigotCMDDcBot implements CommandExecutor{
 	private CmdDebug cmdDebug = new CmdDebug();
 	private CmdTest cmdTest = new CmdTest();
 	private CmdViewChannels cmdViewChannels = new CmdViewChannels();
-	private CmdLink cmdLink = new CmdLink();
 	private CmdNotify cmdNotify = new CmdNotify();
 	
 	@Override
@@ -30,7 +29,6 @@ public class SpigotCMDDcBot implements CommandExecutor{
 			case "debug": return cmdDebug.onCommand(sender, args);
 			case "test": return cmdTest.onCommand(sender, args);
 			case "viewchannels": return cmdViewChannels.onCommand(sender, args);
-			case "link": return cmdLink.onCommand(sender, args);
 			case "notify": return cmdNotify.onCommand(sender, args);
 		}
 

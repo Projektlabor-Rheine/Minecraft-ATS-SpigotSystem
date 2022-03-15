@@ -9,4 +9,4 @@ dcnotifyer:
   channel-id:
   # How long the user has time after joining to click the notify-button. If he waits longer he/she can no notify the discord.
   # Time in ms (default is 2min = 120000ms)
-  notify-timer: 120000
+  notify-timeout: 120000

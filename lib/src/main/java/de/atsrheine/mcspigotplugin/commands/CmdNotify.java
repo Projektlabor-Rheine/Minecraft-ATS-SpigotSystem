@@ -1,6 +1,7 @@
 package de.atsrheine.mcspigotplugin.commands;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bukkit.command.CommandSender;
@@ -10,10 +11,15 @@ import de.atsrheine.mcspigotplugin.Plugin;
 import de.atsrheine.mcspigotplugin.dcnotifyer.DiscordNotifier;
 import de.atsrheine.mcspigotplugin.dcnotifyer.NotifyType;
 
-public class CmdNotify {
+public class CmdNotify extends IDcBotCommand{
 	
 	// Syntax-error
 	private final String SYNTAX_ERROR = this.getSyntaxError();
+	
+	@Override
+	public String getName() {
+		return "notify";
+	}
 	
 	// Sends a syntax error to the player
 	public String getSyntaxError() {
@@ -23,6 +29,9 @@ public class CmdNotify {
 		return Plugin.PREFIX+" §cSyntax: /dcbot nofity ["+notifyers+"]";
 	}
 	
+	
+	
+	@Override
 	public boolean onCommand(CommandSender sender, String[] args) {		
     	// Checks if a notify-type got passed
 		if(args.length < 2) {
@@ -50,5 +59,11 @@ public class CmdNotify {
 		
     	return true;
     }
-	
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, String[] args) {
+		if(args.length == 2)
+			return Arrays.stream(NotifyType.values()).map(i->i.getAsString()).collect(Collectors.toList());
+		return null;
+	}
 }

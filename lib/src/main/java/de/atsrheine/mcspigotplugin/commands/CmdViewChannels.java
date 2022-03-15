@@ -12,8 +12,26 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class CmdViewChannels {
-
+public class CmdViewChannels extends IDcBotCommand{
+	
+	@Override
+	public String getName() {
+		return "viewchannels";
+	}
+	
+	@Override
+    public boolean onCommand(CommandSender sender, String[] args) {
+    	sender.sendMessage(Plugin.PREFIX+" Lade alle Textkanäle vom Bot.");
+    	
+    	// Tries to connect to the server
+    	Plugin.DC_CON.getTextChannelLinksAsync(
+			channels->this.onRetreival(sender, channels),
+			exc->this.onFailedConnection(sender, exc)
+		);
+    	
+    	return true;
+    }
+	
 	/**
 	 * Executes when the channel got retreived
 	 * @param sender the command executor
@@ -32,18 +50,11 @@ public class CmdViewChannels {
 		sender.sendMessage(Plugin.PREFIX+" §cFehler bei der Verbindung zum Discord-Server.");
 	}
 	
-    public boolean onCommand(CommandSender sender, String[] args) {
-    	sender.sendMessage(Plugin.PREFIX+" Lade alle Textkanäle vom Bot.");
-    	
-    	// Tries to connect to the server
-    	Plugin.DC_CON.getTextChannelLinksAsync(
-			channels->this.onRetreival(sender, channels),
-			exc->this.onFailedConnection(sender, exc)
-		);
-    	
-    	return true;
-    }
-    
+	
+	
+	
+   
+
     /**
      * Creates a chatmessage for the player from which he can choose which channel he wants to link the bot to.
      * @param channels the channels that the bot can link to
@@ -79,5 +90,6 @@ public class CmdViewChannels {
     	
     	return base.create();
     }
+
 	
 }

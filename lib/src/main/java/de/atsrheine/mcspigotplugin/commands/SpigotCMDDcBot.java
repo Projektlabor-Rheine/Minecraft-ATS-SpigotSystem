@@ -1,18 +1,29 @@
 package de.atsrheine.mcspigotplugin.commands;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.util.StringUtil;
 
 import de.atsrheine.mcspigotplugin.Plugin;
 
-public class SpigotCMDDcBot implements CommandExecutor{
+public class SpigotCMDDcBot implements CommandExecutor, TabCompleter{
 	
-	// Command instances
-	private CmdDebug cmdDebug = new CmdDebug();
-	private CmdTest cmdTest = new CmdTest();
-	private CmdViewChannels cmdViewChannels = new CmdViewChannels();
-	private CmdNotify cmdNotify = new CmdNotify();
+	// List with registered-commands
+	IDcBotCommand[] commands = new IDcBotCommand[] {
+		new CmdDebug(),
+		new CmdNotify(),
+		new CmdTest(),
+		new CmdViewChannels()
+	};
+	
 	
 	@Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -24,18 +35,56 @@ public class SpigotCMDDcBot implements CommandExecutor{
 			return false;
 		}
 		
-		// Checks for the argument
-		switch(args[0].toLowerCase()) {
-			case "debug": return cmdDebug.onCommand(sender, args);
-			case "test": return cmdTest.onCommand(sender, args);
-			case "viewchannels": return cmdViewChannels.onCommand(sender, args);
-			case "notify": return cmdNotify.onCommand(sender, args);
-		}
-
-		// TODO: Implement help message
-		sender.sendMessage(Plugin.PREFIX+" Hier könnte ihre Werbung stehen.");
+		// Tries to find a matching command
+		var optCmd = Arrays.stream(this.commands).filter(cmd->cmd.getName().equalsIgnoreCase(args[0])).findFirst();
 		
+		// TODO: Implement help message
+		if(optCmd.isEmpty()) {
+			sender.sendMessage(Plugin.PREFIX+" Hier könnte ihre Werbung stehen.");
+			return true;
+		}
+		
+		// Forwards the command
+		optCmd.get().onCommand(sender, args);
+				
 		return false;
     }
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		
+		// Awaits the results
+		List<String> results;
+		
+		// Checks if no arguments are given yet
+		if(args.length == 1 || args[0].isEmpty())
+			// Returns the subcommands
+			results = Arrays.stream(this.commands).filter(cmd->cmd.isTabable()).map(cmd->cmd.getName()).collect(Collectors.toList());
+		else {
+			// Tries to find the current command
+			var optCmd = Arrays.stream(this.commands).filter(cmd->cmd.getName().equalsIgnoreCase(args[0]) && cmd.isTabable()).findFirst();
+			
+			// Checks if there is a command
+			if(optCmd.isEmpty())
+				return new ArrayList<>();
+			
+			// Fills the results
+			results = optCmd.get().onTabComplete(sender, args);
+			
+			// Checks if any tab-complete got found
+			if(results == null)
+				return new ArrayList<>();
+		}
+		
+
+		// Creates the list with the returns
+		var ls = new ArrayList<String>();
+		
+		// Filters the results 
+		StringUtil.copyPartialMatches(args[args.length-1], results, ls);
+        Collections.sort(ls);
+        
+		return ls;
+	}
 
 }

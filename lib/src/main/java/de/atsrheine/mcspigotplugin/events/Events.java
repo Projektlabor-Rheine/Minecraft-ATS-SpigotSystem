@@ -2,10 +2,12 @@ package de.atsrheine.mcspigotplugin.events;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import de.atsrheine.mcspigotplugin.dcnotifyer.DiscordNotifier;
+import de.atsrheine.mcspigotplugin.fixes.ImagePluginFix;
 
 public class Events implements Listener {
 
@@ -27,4 +29,8 @@ public class Events implements Listener {
 		DiscordNotifier.INSTANCE.onPlayerJoin(evt.getPlayer());
 	}
 	
+	@EventHandler
+	private void onUserSendCommand(PlayerCommandPreprocessEvent evt) {
+		ImagePluginFix.INSTANCE.onPlayerUseCommand(evt);
+	}
 }

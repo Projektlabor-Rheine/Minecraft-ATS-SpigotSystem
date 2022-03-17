@@ -2,13 +2,18 @@ package de.atsrheine.mcspigotplugin.commands;
 
 import org.bukkit.command.CommandSender;
 
+import de.atsrheine.mcspigotplugin.Permissions;
 import de.atsrheine.mcspigotplugin.Plugin;
 
-public class CmdTest extends IDcBotCommand{
+public class CmdBotTest extends DcBotCommand{
 	
 	@Override
 	public String getName() {
-		return "test";
+		return "bottest";
+	}
+	@Override
+	public String getPermissionsName() {
+		return Permissions.PERM_CMD_DCBOT_BOTTEST;
 	}
 	
 	

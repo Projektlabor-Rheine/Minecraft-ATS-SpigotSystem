@@ -17,10 +17,11 @@ import de.atsrheine.mcspigotplugin.Plugin;
 public class SpigotCMDDcBot implements CommandExecutor, TabCompleter{
 	
 	// List with registered-commands
-	IDcBotCommand[] commands = new IDcBotCommand[] {
-		new CmdDebug(),
+	DcBotCommand[] commands = new DcBotCommand[] {
+		// Important help message must be first index
+			
 		new CmdNotify(),
-		new CmdTest(),
+		new CmdBotTest(),
 		new CmdViewChannels()
 	};
 	
@@ -36,16 +37,27 @@ public class SpigotCMDDcBot implements CommandExecutor, TabCompleter{
 		}
 		
 		// Tries to find a matching command
-		var optCmd = Arrays.stream(this.commands).filter(cmd->cmd.getName().equalsIgnoreCase(args[0])).findFirst();
+		var optCmd = Arrays.stream(this.commands)
+				// Searches the name
+				.filter(cmd->cmd.getName().equalsIgnoreCase(args[0])).findFirst();
 		
 		// TODO: Implement help message
 		if(optCmd.isEmpty()) {
 			sender.sendMessage(Plugin.PREFIX+" Hier könnte ihre Werbung stehen.");
 			return true;
 		}
+
+		// Gets the command
+		var cmd = optCmd.get();
+		
+		// Checks if the user has permissions for that command
+		if(cmd.getPermissionsName() != null && !sender.hasPermission(cmd.getPermissionsName())) {
+			sender.sendMessage(Plugin.PREFIX+" §cDu bist nicht berechtigt um diesen Befehl zu verwenden.");
+			return true;
+		}
 		
 		// Forwards the command
-		optCmd.get().onCommand(sender, args);
+		cmd.onCommand(sender, args);
 				
 		return false;
     }
@@ -59,10 +71,23 @@ public class SpigotCMDDcBot implements CommandExecutor, TabCompleter{
 		// Checks if no arguments are given yet
 		if(args.length == 1 || args[0].isEmpty())
 			// Returns the subcommands
-			results = Arrays.stream(this.commands).filter(cmd->cmd.isTabable()).map(cmd->cmd.getName()).collect(Collectors.toList());
+			results = Arrays.stream(this.commands)
+				// Searches only tabable commands
+				.filter(cmd->cmd.isTabable())
+				// Searches only commands that the sender has permissions to
+				.filter(cmd->cmd.getPermissionsName() == null || sender.hasPermission(cmd.getPermissionsName()))
+				.map(cmd->cmd.getName())
+				.collect(Collectors.toList());
 		else {
 			// Tries to find the current command
-			var optCmd = Arrays.stream(this.commands).filter(cmd->cmd.getName().equalsIgnoreCase(args[0]) && cmd.isTabable()).findFirst();
+			var optCmd = Arrays.stream(this.commands)
+				// Searches only tabable commands
+				.filter(cmd->cmd.isTabable())
+				// Searches only commands that the sender has permissions to
+				.filter(cmd->cmd.getPermissionsName() == null || sender.hasPermission(cmd.getPermissionsName()))
+				// Searches for the name
+				.filter(cmd->cmd.getName().equalsIgnoreCase(args[0]) && cmd.isTabable())
+				.findFirst();
 			
 			// Checks if there is a command
 			if(optCmd.isEmpty())

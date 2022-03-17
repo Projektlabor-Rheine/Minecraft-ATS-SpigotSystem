@@ -2,6 +2,7 @@ package de.atsrheine.mcspigotplugin.commands;
 
 import org.bukkit.command.CommandSender;
 
+import de.atsrheine.mcspigotplugin.Permissions;
 import de.atsrheine.mcspigotplugin.Plugin;
 import de.atsrheine.mcspigotplugin.discord.ChannelLink;
 import net.md_5.bungee.api.ChatColor;
@@ -12,11 +13,15 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-public class CmdViewChannels extends IDcBotCommand{
+public class CmdViewChannels extends DcBotCommand{
 	
 	@Override
 	public String getName() {
 		return "viewchannels";
+	}
+	@Override
+	public String getPermissionsName() {
+		return Permissions.PERM_CMD_DCBOT_VIEWCHANNELS;
 	}
 	
 	@Override

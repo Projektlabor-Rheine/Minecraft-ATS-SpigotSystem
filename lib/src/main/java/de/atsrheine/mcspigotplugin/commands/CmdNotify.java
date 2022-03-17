@@ -7,11 +7,12 @@ import java.util.stream.Collectors;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import de.atsrheine.mcspigotplugin.Permissions;
 import de.atsrheine.mcspigotplugin.Plugin;
 import de.atsrheine.mcspigotplugin.dcnotifyer.DiscordNotifier;
 import de.atsrheine.mcspigotplugin.dcnotifyer.NotifyType;
 
-public class CmdNotify extends IDcBotCommand{
+public class CmdNotify extends DcBotCommand{
 	
 	// Syntax-error
 	private final String SYNTAX_ERROR = this.getSyntaxError();
@@ -19,6 +20,11 @@ public class CmdNotify extends IDcBotCommand{
 	@Override
 	public String getName() {
 		return "notify";
+	}
+
+	@Override
+	public String getPermissionsName() {
+		return Permissions.PERM_CMD_DCBOT_NOTIFY;
 	}
 	
 	// Sends a syntax error to the player

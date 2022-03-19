@@ -9,7 +9,8 @@ public class Permissions {
 	public static final String
 		PERM_CMD_DCBOT_NOTIFY 			= "atsspigot.dcbot.notify",	// Dcbot notify command
 		PERM_CMD_DCBOT_VIEWCHANNELS 	= "atsspigot.dcbot.viewchannels", // Dcbot viewchannels command
-		PERM_CMD_DCBOT_BOTTEST 			= "atsspigot.dcbot.bottest" // Dcbot bottest command
+		PERM_CMD_DCBOT_BOTTEST 			= "atsspigot.dcbot.bottest", // Dcbot bottest command
+		PERM_CMD_DCBOT_HELP				= "atsspigot.dcbot.help" // Dcbot help command
 	;
 	
 	// Fixes permissions for the image plugin

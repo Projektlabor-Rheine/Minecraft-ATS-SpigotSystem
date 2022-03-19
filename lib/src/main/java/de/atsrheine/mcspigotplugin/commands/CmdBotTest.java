@@ -23,7 +23,7 @@ public class CmdBotTest extends DcBotCommand{
 	 * @param args the arguments
 	 */
 	@Override
-    public boolean onCommand(CommandSender sender, String[] args) {
+    public void onCommand(CommandSender sender, String[] args) {
     	// Sends the message that a connection is getting tried
     	sender.sendMessage(Plugin.PREFIX+" Wir testen die Verbindung, Sekunde bitte.");
     	
@@ -32,8 +32,6 @@ public class CmdBotTest extends DcBotCommand{
 			()->this.onSuccessfullConnection(sender),
 			exc->this.onFailedConnection(sender, exc)
     	);
-    	
-    	return true;
     }
     
 	/**

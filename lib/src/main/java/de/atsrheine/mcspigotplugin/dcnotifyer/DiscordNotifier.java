@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import de.atsrheine.mcspigotplugin.Permissions;
 import de.atsrheine.mcspigotplugin.Plugin;
 import de.atsrheine.mcspigotplugin.util.FailableThread;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -60,6 +61,11 @@ public class DiscordNotifier extends BukkitRunnable{
 	
 	// Event: When a player joins
 	public void onPlayerJoin(Player p) {
+		
+		// Checks if the user doesn't have the permissions for the notify command
+		if(!p.hasPermission(Permissions.PERM_CMD_DCBOT_NOTIFY))
+			return;
+		
 		// Appends to the allowed senders
 		this.allowedPlayers.put(p, System.currentTimeMillis());
 		

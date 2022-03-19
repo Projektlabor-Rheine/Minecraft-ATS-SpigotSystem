@@ -25,7 +25,7 @@ public class CmdViewChannels extends DcBotCommand{
 	}
 	
 	@Override
-    public boolean onCommand(CommandSender sender, String[] args) {
+    public void onCommand(CommandSender sender, String[] args) {
     	sender.sendMessage(Plugin.PREFIX+" Lade alle Textkanäle vom Bot.");
     	
     	// Tries to connect to the server
@@ -33,8 +33,6 @@ public class CmdViewChannels extends DcBotCommand{
 			channels->this.onRetreival(sender, channels),
 			exc->this.onFailedConnection(sender, exc)
 		);
-    	
-    	return true;
     }
 	
 	/**

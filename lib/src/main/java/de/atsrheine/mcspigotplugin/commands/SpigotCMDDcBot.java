@@ -15,16 +15,21 @@ import org.bukkit.util.StringUtil;
 import de.atsrheine.mcspigotplugin.Plugin;
 
 public class SpigotCMDDcBot implements CommandExecutor, TabCompleter{
-	
+		
 	// List with registered-commands
-	DcBotCommand[] commands = new DcBotCommand[] {
-		// Important help message must be first index
+	private DcBotCommand[] commands = new DcBotCommand[] {
+		// Important help-commandmust be first index
+		new CmdHelp(),
 			
 		new CmdNotify(),
 		new CmdBotTest(),
 		new CmdViewChannels()
 	};
 	
+	public SpigotCMDDcBot() {
+		// Init's the help command
+		((CmdHelp)this.commands[0]).init(this.commands);
+	}
 	
 	@Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

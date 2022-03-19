@@ -15,3 +15,5 @@ gradle/
 .project
 gradlew
 gradlew.bat
+
+.bakignore

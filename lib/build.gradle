@@ -46,5 +46,10 @@ jar{
         	"Class-Path": ". libs/jda-with-dependencies.jar"
         )
 	}
+	
+	copy {
+        from 'build/libs/lib.jar'
+        into "/home/untrusted/Dokumente/Minecraft-SpigotServer/plugins/"
+    }
 
 }
